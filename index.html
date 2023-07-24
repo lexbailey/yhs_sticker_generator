@@ -4,13 +4,33 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
   </head>
   <body>
+    <h1>York Hackspace Equipment Sticker Generator</h1>
+    <section>
+        <h2>Select equipment items</h2>
+        <p>List the names of York Hackspace wiki pages to scan for equipment.</p>
+        <div><button id="addall" >Auto-add all</button></div>
+        <textarea style="width: 30em;height:30em;" id="item_list"></textarea>
+    </section>
+    <section>
+        <h2>Generate stickers</h2>
+        <button id="generate" >Generate</button>
+        <div id="output"></div>
+    </section>
     <script type="module">
-      import init, { get_names, get_props } from './pkg/stickers.js';
+      import init, { get_names, gen_stickers} from './pkg/stickers.js';
 
       async function run() {
         await init();
-        const result = await get_names();
-        console.log(await get_props(result[0]));
+        let addall = document.getElementById("addall");
+        let generate = document.getElementById("generate");
+        let item_list = document.getElementById("item_list");
+        let output = document.getElementById("output");
+        addall.onclick = async ()=>{item_list.value = await get_names();};
+        //addall.attributes.removeNamedItem("disabled");
+        generate.onclick = async ()=>{
+            output.innerHTML = await gen_stickers(item_list.value);
+        };
+        //generate.attributes.removeNamedItem("disabled");
       }
       run();
     </script>
