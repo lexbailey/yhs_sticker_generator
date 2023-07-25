@@ -143,7 +143,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             let template = root.get_child("template")?;
             let tname = template.get_child("title")?.get_text()?;
             if tname.trim() == "EquipmentInfobox"{
-                let url = format!("{}{}", page_base_url, part_encode(name));
+                let url = format!("{}{}", page_base_url, part_encode(&name.replace(" ", "_")));
                 let mut info = HashMap::<_,_>::new();
                 info.insert("url".to_string(), url);
                 use xmltree::XMLNode as XN;
