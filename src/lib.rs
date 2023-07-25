@@ -1,3 +1,4 @@
+#![allow(non_upper_case_globals)]
 mod utils;
 
 use wasm_bindgen::prelude::*;
@@ -70,7 +71,7 @@ pub async fn get_names() -> Result<String, JsValue>{
     let base_req = "action=query&format=json&generator=allpages&gapprefix=Equipment%2F";
     let mut cont = "".to_string();
     let mut did_complete = false;
-    for i in 0..limit{
+    for _ in 0..limit{
         let mdata = api_request(&format!("{}{}", base_req, cont)).await;
         let data = match mdata{
             Ok(a) => a,
@@ -139,10 +140,10 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
         }
         let root = root.unwrap();
         let result = (||->Option<HashMap<_,_>>{
-            let mut template = root.get_child("template")?;
-            let mut tname = template.get_child("title")?.get_text()?;
+            let template = root.get_child("template")?;
+            let tname = template.get_child("title")?.get_text()?;
             if tname.trim() == "EquipmentInfobox"{
-                let mut url = format!("{}{}", page_base_url, part_encode(name));
+                let url = format!("{}{}", page_base_url, part_encode(name));
                 let mut info = HashMap::<_,_>::new();
                 info.insert("url".to_string(), url);
                 use xmltree::XMLNode as XN;
@@ -165,7 +166,6 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
         })();
         if let Some(mut info) = result{
-            let name = info.get("name").map(String::to_owned);
             let owner = info.get("owner").map(String::to_owned);
             let url = info.get("url").map(String::to_owned);
             let img_name = info.get("image").map(String::to_owned);
