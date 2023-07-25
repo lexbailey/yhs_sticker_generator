@@ -2,6 +2,7 @@ mod utils;
 
 use wasm_bindgen::prelude::*;
 use thiserror::Error;
+use std::collections::HashMap;
 
 #[wasm_bindgen]
 extern "C" {
@@ -15,6 +16,36 @@ macro_rules! console_log {
 
 const base_url: &'static str = "https://york.hackspace.org.uk/mediawiki/api.php";
 const page_base_url: &'static str = "https://york.hackspace.org.uk/wiki/";
+const image_thumb_url: &'static str = "https://york.hackspace.org.uk/mediawiki/thumb.php?w=400&f=";
+const template_120x45mm: &'static str = include_str!("../template_120x45mm.svg");
+
+fn esc_xml(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '<' => out+="&lt;",
+            '>' => out+="&gt;",
+            '"' => out+="&#34;",
+            '\'' => out+="&#39;",
+            '&' => out+="&#38;",
+            c => out+=&c.to_string(),
+        }
+    }
+    out
+}
+
+fn expand_template(template: &str, vars: HashMap<String, String>) -> String{
+    let mut result = template.to_string();
+    for (key, value) in vars{
+        if key.starts_with("NOESC"){
+            result = result.replace(&format!("{{{{{}}}}}", key[5..].to_string()), &value);
+        }
+        else{
+            result = result.replace(&format!("{{{{{}}}}}", key), &esc_xml(&value));
+        }
+    }
+    result
+}
 
 #[derive(Error,Debug)]
 enum ApiError{
@@ -86,17 +117,18 @@ pub async fn get_names() -> Result<String, JsValue>{
         Err(format!("Too many requests, page listing incomplete after {} requests.", limit).into())
     }
 }
-use std::collections::HashMap;
+
+fn part_encode(s: &str) -> String {
+    s.split('/').map(urlencoding::encode).map(|a|a.to_string()).collect::<Vec<String>>().join("/")
+}
 
 async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
-    let url = format!("action=parse&format=json&page={}&prop=parsetree&contentmodel=wikitext", name);
+    let url = format!("action=parse&format=json&page={}&prop=parsetree&contentmodel=wikitext", urlencoding::encode(name));
     let mdata = api_request(&url).await;
     let data = match mdata{
         Ok(a) => a,
         Err(e) => return Err(format!("Error fetching data: {}", e).into())
     };
-
-    console_log!("{}", data);
 
     let xml = &data["parse"]["parsetree"]["*"];
     if let serde_json::Value::String(xmltext) = xml{
@@ -110,7 +142,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             let mut template = root.get_child("template")?;
             let mut tname = template.get_child("title")?.get_text()?;
             if tname.trim() == "EquipmentInfobox"{
-                let mut url = format!("{}{}", page_base_url, name);
+                let mut url = format!("{}{}", page_base_url, part_encode(name));
                 let mut info = HashMap::<_,_>::new();
                 info.insert("url".to_string(), url);
                 use xmltree::XMLNode as XN;
@@ -118,7 +150,6 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
                     match child{
                         XN::Element(e) => {
                             if e.name == "part"{
-                                console_log!("a part! {:?}", e);
                                 let key = e.get_child("name")?.get_text()?;
                                 let value = e.get_child("value")?.get_text().unwrap_or("".to_string().into());
                                 info.insert(key.trim().to_string(), value.trim().to_string());
@@ -133,7 +164,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
                 None
             }
         })();
-        if let Some(info) = result{
+        if let Some(mut info) = result{
             let name = info.get("name").map(String::to_owned);
             let owner = info.get("owner").map(String::to_owned);
             let url = info.get("url").map(String::to_owned);
@@ -142,6 +173,8 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
                 info.get("trainingform").map(String::to_owned)
             });
             let req_training = training.is_some();
+            info.insert("training".to_string(), if req_training {"DO NOT USE without training!".to_string()} else {"no training required".to_string()});
+            info.insert("bgstyle".to_string(), if req_training {"fill:#ff6b72;fill-opacity:1;".to_string()} else {"fill:#bcffb5;fill-opacity:1;".to_string()});
             let mut is_ltl = true;
             let lcowner = owner.clone().unwrap_or("".to_string()).to_lowercase();
             for s in ["york hackspace", "hackspace", "york hack space", "hack space", "yhs", ""]{
@@ -149,31 +182,45 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
                     is_ltl = false;
                 }
             }
-            console_log!("{:?}", info);
-            console_log!("Name: {:?}", name);
-            console_log!("URL: {:?}", url);
-            console_log!("Image: {:?}", img_name);
-            console_log!("Requires training? {:?}", req_training);
-            console_log!("Is long term loan? {:?}", is_ltl);
-            console_log!("Owner: {:?}", owner);
-            Ok("<svg></svg>".to_string())
+            if !is_ltl{
+                info.insert("owner".to_string(), "Owned by York Hackspace".to_string());
+            }
+            else{
+                info.insert("owner".to_string(), format!("Kindly on loan from {}.", &owner.as_ref().unwrap()));
+            }
+            let qr = qrcode_generator::to_svg_to_string(&url.as_ref().unwrap(), qrcode_generator::QrCodeEcc::Low, 200, None::<&str>).unwrap();
+            info.insert("NOESCqrcode_svg".to_string(), qr);
+            if img_name.is_some(){
+                let image = img_name.unwrap();
+                info.insert("NOESCimage".to_string(), format!("<image href=\"{}{}\" x=\"35\" y=\"20\" width=\"80\" height=\"20\" />", image_thumb_url, urlencoding::encode(&image)));
+            }
+            info.remove("image");
+            Ok(expand_template(template_120x45mm, info))
         }
         else{
-            Err("Failed to parse EquipmentInfobox on page".into())
+            Err("Failed to find and parse EquipmentInfobox on page. Does it exist?".into())
         }
     }
     else{
-        Err("API response does not include parse tree for requested page".into())
+        Err("Internal error: API response does not include parse tree for requested page".into())
     }
 }
 
 #[wasm_bindgen]
-pub async fn gen_stickers(names: String) -> Result<String, JsValue> {
-    console_log!("Raw list: {:?}", names);
+pub async fn gen_stickers(names: String) -> Result<js_sys::Array, JsValue> {
+    utils::set_panic_hook();
     let mut results = Vec::new();
+    let mut errlog = String::new();
     for name in names.trim().split("\n"){
         console_log!("Generating sticker for: {}", name);
-        results.push(gen_one_sticker(name).await?);
+        let r = gen_one_sticker(name).await;
+        match r{
+            Ok(sticker) => results.push(sticker),
+            Err(e) => errlog += &format!("Failed to generate sticker for \"{}\": {}", name, e.as_string().unwrap_or_else(||{format!("{:?}", e)})),
+        }
     }
-    Ok(results.join(""))
+    let res = js_sys::Array::new();
+    res.push(&errlog.into());
+    res.push(&results.join("").into());
+    Ok(res)
 }

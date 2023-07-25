@@ -14,6 +14,7 @@
     <section>
         <h2>Generate stickers</h2>
         <button id="generate" >Generate</button>
+        <div id="erroutput"></div>
         <div id="output"></div>
     </section>
     <script type="module">
@@ -25,10 +26,15 @@
         let generate = document.getElementById("generate");
         let item_list = document.getElementById("item_list");
         let output = document.getElementById("output");
+        let erroutput = document.getElementById("erroutput");
         addall.onclick = async ()=>{item_list.value = await get_names();};
         //addall.attributes.removeNamedItem("disabled");
         generate.onclick = async ()=>{
-            output.innerHTML = await gen_stickers(item_list.value);
+            erroutput.innerText = "Generating stickers, please wait...";
+            let res = await gen_stickers(item_list.value);
+            console.log(res);
+            erroutput.innerText = res[0];
+            output.innerHTML = res[1];
         };
         //generate.attributes.removeNamedItem("disabled");
       }
