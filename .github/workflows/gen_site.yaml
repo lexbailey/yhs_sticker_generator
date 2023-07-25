@@ -3,6 +3,11 @@ on:
   push:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,7 +15,16 @@ jobs:
       - uses: actions/checkout@v3
         #- name: install rustup
         #run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh - -- -y
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
       - name: install wasm-pack
         run: cargo install wasm-pack
       - name: build
         run: ./build_release
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
