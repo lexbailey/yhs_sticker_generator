@@ -16,7 +16,7 @@ macro_rules! console_log {
 }
 
 const base_url: &'static str = "https://york.hackspace.org.uk/mediawiki/api.php";
-const page_base_url: &'static str = "https://york.hackspace.org.uk/wiki/";
+const id_base_url: &'static str = "YORK.HACKSPACE.ORG.UK/W/";
 const image_thumb_url: &'static str = "https://york.hackspace.org.uk/mediawiki/thumb.php?w=400&f=";
 const template_120x45mm: &'static str = include_str!("../template_120x45mm.svg");
 
@@ -119,10 +119,6 @@ pub async fn get_names() -> Result<String, JsValue>{
     }
 }
 
-fn part_encode(s: &str) -> String {
-    s.split('/').map(urlencoding::encode).map(|a|a.to_string()).collect::<Vec<String>>().join("/")
-}
-
 async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
     let url = format!("action=parse&format=json&page={}&prop=parsetree&contentmodel=wikitext", urlencoding::encode(name));
     let mdata = api_request(&url).await;
@@ -132,6 +128,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
     };
 
     let xml = &data["parse"]["parsetree"]["*"];
+    let id_num = &data["parse"]["pageid"].as_u64().ok_or_else(||JsValue::from_str("Failed to parse page ID from API response"))?;
     if let serde_json::Value::String(xmltext) = xml{
         use xmltree::Element;
         let root = Element::parse(xmltext.as_bytes());
@@ -143,7 +140,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             let template = root.get_child("template")?;
             let tname = template.get_child("title")?.get_text()?;
             if tname.trim() == "EquipmentInfobox"{
-                let url = format!("{}{}", page_base_url, part_encode(&name.replace(" ", "_")));
+                let url = format!("{}{}", id_base_url, id_num);
                 let mut info = HashMap::<_,_>::new();
                 info.insert("url".to_string(), url);
                 use xmltree::XMLNode as XN;
