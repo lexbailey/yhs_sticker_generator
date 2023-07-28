@@ -119,6 +119,15 @@ pub async fn get_names() -> Result<String, JsValue>{
     }
 }
 
+fn unwrap_name(s: &str) -> String{
+    if s.starts_with("[[User:") && s.ends_with("]]") {
+        s[7..s.len()-2].to_string()
+    }
+    else{
+        s.to_string()
+    }
+}
+
 async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
     let url = format!("action=parse&format=json&page={}&prop=parsetree&contentmodel=wikitext", urlencoding::encode(name));
     let mdata = api_request(&url).await;
@@ -183,7 +192,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
                 info.insert("owner".to_string(), "Owned by York Hackspace".to_string());
             }
             else{
-                info.insert("owner".to_string(), format!("Kindly on loan from {}.", &owner.as_ref().unwrap()));
+                info.insert("owner".to_string(), format!("Kindly on loan from {}.", unwrap_name(&owner.as_ref().unwrap())));
             }
             let qr = qrcode_generator::to_svg_to_string(&url.as_ref().unwrap(), qrcode_generator::QrCodeEcc::Low, 200, None::<&str>).unwrap();
             info.insert("NOESCqrcode_svg".to_string(), qr);
