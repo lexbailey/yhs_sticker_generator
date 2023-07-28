@@ -28,15 +28,12 @@
         let output = document.getElementById("output");
         let erroutput = document.getElementById("erroutput");
         addall.onclick = async ()=>{item_list.value = await get_names();};
-        //addall.attributes.removeNamedItem("disabled");
         generate.onclick = async ()=>{
             erroutput.innerText = "Generating stickers, please wait...";
             let res = await gen_stickers(item_list.value);
-            console.log(res);
             erroutput.innerText = res[0];
             output.innerHTML = res[1];
         };
-        //generate.attributes.removeNamedItem("disabled");
       }
       run();
     </script>
