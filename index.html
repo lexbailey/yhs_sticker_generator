@@ -14,6 +14,7 @@
     <section>
         <h2>Generate stickers</h2>
         <button id="generate" >Generate</button>
+        <a id="dl" download="yhs_stickers.zip"><button>Download generated stickers</button></a>
         <div id="erroutput"></div>
         <div id="output"></div>
     </section>
@@ -27,12 +28,14 @@
         let item_list = document.getElementById("item_list");
         let output = document.getElementById("output");
         let erroutput = document.getElementById("erroutput");
+        let dl = document.getElementById("dl");
         addall.onclick = async ()=>{item_list.value = await get_names();};
         generate.onclick = async ()=>{
             erroutput.innerText = "Generating stickers, please wait...";
             let res = await gen_stickers(item_list.value);
             erroutput.innerText = res[0];
             output.innerHTML = res[1];
+            dl.href = res[2];
         };
       }
       run();

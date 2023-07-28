@@ -216,12 +216,27 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
     }
 }
 
+fn generate_download_link(svgs: &mut dyn std::iter::Iterator<Item=(&str, &str)>) -> String {
+    use base64::Engine;
+    use std::io::Write;
+    let buf = Vec::<u8>::new();
+    let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+    let mut zip = zip::ZipWriter::new(std::io::Cursor::new(buf));
+    for (name, data) in svgs{
+        zip.start_file(&format!("{}.svg",name), options).unwrap();
+        zip.write(data.as_bytes()).unwrap();
+    }
+    let buf = zip.finish().unwrap().into_inner();
+    format!("data:application/zip;base64,{}", base64::engine::general_purpose::GeneralPurpose::new(&base64::alphabet::STANDARD, base64::engine::general_purpose::GeneralPurposeConfig::default()).encode(buf))
+}
+
 #[wasm_bindgen]
 pub async fn gen_stickers(names: String) -> Result<js_sys::Array, JsValue> {
     utils::set_panic_hook();
     let mut results = Vec::new();
     let mut errlog = String::new();
-    for name in names.trim().split("\n"){
+    let names = names.trim();//.split("\n");
+    for name in names.split("\n"){
         console_log!("Generating sticker for: {}", name);
         let r = gen_one_sticker(name).await;
         match r{
@@ -232,5 +247,11 @@ pub async fn gen_stickers(names: String) -> Result<js_sys::Array, JsValue> {
     let res = js_sys::Array::new();
     res.push(&errlog.into());
     res.push(&results.join("").into());
+    let dl_link = generate_download_link(
+        &mut names.split("\n").zip(
+            (results.iter()).map(String::as_str)
+        )
+    );
+    res.push(&dl_link.into());
     Ok(res)
 }
