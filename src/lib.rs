@@ -196,7 +196,11 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
             let qr = qrcode_generator::to_svg_to_string(&url.as_ref().unwrap(), qrcode_generator::QrCodeEcc::Low, 200, None::<&str>).unwrap();
             info.insert("NOESCqrcode_svg".to_string(), qr);
-            if img_name.is_some(){
+            let has_web_interface = info.contains_key("webinterface");
+            if !has_web_interface{
+                info.insert("webinterface".to_string(), "".to_string());
+            }
+            if img_name.is_some() && !has_web_interface{
                 let image = img_name.unwrap();
                 info.insert("NOESCimage".to_string(), format!("<image href=\"{}{}\" x=\"35\" y=\"20\" width=\"80\" height=\"20\" />", image_thumb_url, urlencoding::encode(&image)));
             }

@@ -110,6 +110,18 @@
          style="font-size:4.93889px;stroke-width:0.264583"
          x="33.7118"
          y="18.59255">{{owner}}</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;fill:#4a55ff;fill-opacity:1;stroke:none;stroke-width:0.264583;text-decoration:underline;"
+       x="33.7118"
+       y="24.73"
+       id="text236-3-7-3"
+       inkscape:label="owner"><tspan
+         sodipodi:role="line"
+         id="tspan234-6-5-5"
+         style="font-size:4.93889px;stroke-width:0.264583"
+         x="33.7118"
+         y="24.73">{{webinterface}}</tspan></text>
     <g
        id="g2781"
        inkscape:label="IMG">
