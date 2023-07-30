@@ -3,30 +3,21 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <g>
-    <rect width="96" height="34" x="-5.4966919e-17" y="0" style="{{bgstyle}}" />
+    <rect width="96" height="34" x="0" y="0" style="{{bgstyle}}" />
     <text xml:space="preserve">
-        <tspan style="font-weight:bold;font-size:5.6px;font-family:sans-serif;"
-         x="33.7118"
-         y="6.6884947">{{name}}</tspan>
+        <tspan style="font-weight:bold;font-size:5.6px;font-family:sans-serif;" x="33.7" y="6.6">{{name}}</tspan>
     </text>
-    <g transform="matrix(0.15,0,0,0.15,2.5,1.5)"
-       style="stroke-width:1.30502">
+    <g transform="matrix(0.15,0,0,0.15,2.5,1.5)">
        {{qrcode_svg}}
     </g>
-    <text xml:space="preserve"><tspan
-         style="font-size:2.82222px;stroke-width:0.264583"
-         x="33.7118"
-         y="30.922127">{{url}}</tspan>
+    <text xml:space="preserve">
+        <tspan style="font-size:2.82px;font-family:sans-serif;" x="33.7" y="30.9">{{url}}</tspan>
     </text>
-    <text xml:space="preserve" ><tspan
-         style="font-size:4.93889px;stroke-width:0.264583"
-         x="33.7118"
-         y="12.45152">{{training}}</tspan>
+    <text xml:space="preserve">
+        <tspan style="font-size:4.93px;font-family:sans-serif;" x="33.7" y="12.4">{{training}}</tspan>
     </text>
-    <text xml:space="preserve"><tspan
-         style="font-size:4.93889px;stroke-width:0.264583"
-         x="33.7118"
-         y="18.59255">{{owner}}</tspan>
+    <text xml:space="preserve">
+        <tspan style="font-size:4.93px;font-family:sans-serif;" x="33.7" y="18.5">{{owner}}</tspan>
     </text>
   </g>
 </svg>
