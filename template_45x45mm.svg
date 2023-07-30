@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="45mm"
+   height="45mm"
+   viewBox="0 0 45 45"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="template_45x45mm.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="2.587745"
+     inkscape:cx="232.05533"
+     inkscape:cy="75.548403"
+     inkscape:window-width="2154"
+     inkscape:window-height="1236"
+     inkscape:window-x="1975"
+     inkscape:window-y="58"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Sticker"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       id="rect549"
+       width="45"
+       height="45"
+       x="-5.4966919e-17"
+       y="0"
+       inkscape:label="bg"
+       style="{{bgstyle}}" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.64444px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="2.3495646"
+       y="6.6884947"
+       id="text236"
+       inkscape:label="name"><tspan
+         sodipodi:role="line"
+         id="tspan234"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
+         x="2.3495646"
+         y="6.6884947">{{name}}</tspan></text>
+    <g
+       id="g1106"
+       inkscape:label="QR"
+       transform="matrix(0.15,0,0,0.15,7,9)"
+       style="stroke-width:1.30502">
+      <rect
+         style="fill:#70b3ff;stroke-width:2.17284;stroke-linejoin:round"
+         id="rect448"
+         width="40"
+         height="40"
+         x="2.4342313"
+         y="2.5"
+         inkscape:label="QRPlaceholder" />
+        {{qrcode_svg}}
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="2.2959423"
+       y="42.922127"
+       id="text236-3"
+       inkscape:label="url"><tspan
+         sodipodi:role="line"
+         id="tspan234-6"
+         style="font-size:2.82222px;stroke-width:0.264583"
+         x="2.2959423"
+         y="42.922127">{{owner}}</tspan></text>
+    </g>
+</svg>

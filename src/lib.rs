@@ -16,9 +16,10 @@ macro_rules! console_log {
 }
 
 const base_url: &'static str = "https://york.hackspace.org.uk/mediawiki/api.php";
-const id_base_url: &'static str = "YORK.HACKSPACE.ORG.UK/W/";
+const id_base_url: &'static str = "HTTPS://YHS.MOD3.UK/W/";
 const image_thumb_url: &'static str = "https://york.hackspace.org.uk/mediawiki/thumb.php?w=400&f=";
-const template_120x45mm: &'static str = include_str!("../template_120x45mm.svg");
+const template_105x45mm: &'static str = include_str!("../template_105x45mm.svg");
+const template_45x45mm: &'static str = include_str!("../template_45x45mm.svg");
 
 fn esc_xml(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
@@ -172,6 +173,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
         })();
         if let Some(mut info) = result{
+            let template = info.get("sticker_sz").map(String::to_owned).unwrap_or_else(||"105x45mm".to_string());
             let owner = info.get("owner").map(String::to_owned);
             let url = info.get("url").map(String::to_owned);
             let img_name = info.get("image").map(String::to_owned);
@@ -192,7 +194,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
                 info.insert("owner".to_string(), "Owned by York Hackspace".to_string());
             }
             else{
-                info.insert("owner".to_string(), format!("Kindly on loan from {}.", unwrap_name(&owner.as_ref().unwrap())));
+                info.insert("owner".to_string(), format!("Kindly loaned by {}", unwrap_name(&owner.as_ref().unwrap())));
             }
             let qr = qrcode_generator::to_svg_to_string(&url.as_ref().unwrap(), qrcode_generator::QrCodeEcc::Low, 200, None::<&str>).unwrap();
             info.insert("NOESCqrcode_svg".to_string(), qr);
@@ -202,10 +204,15 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
             if img_name.is_some() && !has_web_interface{
                 let image = img_name.unwrap();
-                info.insert("NOESCimage".to_string(), format!("<image href=\"{}{}\" x=\"35\" y=\"20\" width=\"80\" height=\"20\" />", image_thumb_url, urlencoding::encode(&image)));
+                info.insert("NOESCimage".to_string(), format!("<image href=\"{}{}\" x=\"35\" y=\"20\" width=\"65\" height=\"20\" />", image_thumb_url, urlencoding::encode(&image)));
             }
             info.remove("image");
-            Ok(expand_template(template_120x45mm, info))
+            let template = match template.as_ref() {
+                "105x45mm" => template_105x45mm,
+                "45x45mm" => template_45x45mm,
+                s => return Err(format!("Sticker size is set to {}, but no template for this size exists.", s).into()),
+            };
+            Ok(expand_template(template, info))
         }
         else{
             Err("Failed to find and parse EquipmentInfobox on page. Does it exist?".into())
@@ -235,13 +242,13 @@ pub async fn gen_stickers(names: String) -> Result<js_sys::Array, JsValue> {
     utils::set_panic_hook();
     let mut results = Vec::new();
     let mut errlog = String::new();
-    let names = names.trim();//.split("\n");
+    let names = names.trim();
     for name in names.split("\n"){
         console_log!("Generating sticker for: {}", name);
         let r = gen_one_sticker(name).await;
         match r{
             Ok(sticker) => results.push(sticker),
-            Err(e) => errlog += &format!("Failed to generate sticker for \"{}\": {}", name, e.as_string().unwrap_or_else(||{format!("{:?}", e)})),
+            Err(e) => errlog += &format!("Failed to generate sticker for \"{}\": {}\n", name, e.as_string().unwrap_or_else(||{format!("{:?}", e)})),
         }
     }
     let res = js_sys::Array::new();
