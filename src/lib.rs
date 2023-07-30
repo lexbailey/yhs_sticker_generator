@@ -18,7 +18,8 @@ macro_rules! console_log {
 const base_url: &'static str = "https://york.hackspace.org.uk/mediawiki/api.php";
 const id_base_url: &'static str = "HTTPS://YHS.MOD3.UK/W/";
 const image_thumb_url: &'static str = "https://york.hackspace.org.uk/mediawiki/thumb.php?w=400&f=";
-const template_105x45mm: &'static str = include_str!("../template_105x45mm.svg");
+const template_112x45mm: &'static str = include_str!("../template_112x45mm.svg");
+const template_96x34mm: &'static str = include_str!("../template_96x34mm.svg");
 const template_45x45mm: &'static str = include_str!("../template_45x45mm.svg");
 
 fn esc_xml(s: &str) -> String {
@@ -173,7 +174,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
         })();
         if let Some(mut info) = result{
-            let template = info.get("sticker_sz").map(String::to_owned).unwrap_or_else(||"105x45mm".to_string());
+            let template = info.get("sticker_sz").map(String::to_owned).unwrap_or_else(||"112x45mm".to_string());
             let owner = info.get("owner").map(String::to_owned);
             let url = info.get("url").map(String::to_owned);
             let img_name = info.get("image").map(String::to_owned);
@@ -208,7 +209,8 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
             info.remove("image");
             let template = match template.as_ref() {
-                "105x45mm" => template_105x45mm,
+                "112x45mm" => template_112x45mm,
+                "96x34mm" => template_96x34mm,
                 "45x45mm" => template_45x45mm,
                 s => return Err(format!("Sticker size is set to {}, but no template for this size exists.", s).into()),
             };

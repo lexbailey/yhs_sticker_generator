@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="112mm" height="45mm" viewBox="0 0 112 45"
+   version="1.1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <g>
+    <rect width="112" height="45" x="-5.4966919e-17" y="0" style="{{bgstyle}}" />
+    <text xml:space="preserve">
+        <tspan
+         style="font-weight:bold;font-stretch:normal;font-size:5.6px;font-family:sans-serif;"
+         x="2.3495646"
+         y="6.6884947">{{name}}</tspan>
+    </text>
+    <g transform="matrix(0.15,0,0,0.15,2.5,9)" style="stroke-width:1.30502">
+      {{qrcode_svg}}
+    </g>
+    <text xml:space="preserve">
+        <tspan style="font-size:2.8px;stroke-width:0.264583" x="2.29" y="42.92">{{url}}</tspan>
+    </text>
+    <text xml:space="preserve">
+        <tspan style="font-size:4.9px;stroke-width:0.264583" x="33.7" y="12.45">{{training}}</tspan>
+    </text>
+    <text xml:space="preserve">
+        <tspan style="font-size:4.9px;stroke-width:0.264583" x="33.7" y="18.59">{{owner}}</tspan>
+    </text>
+    <text xml:space="preserve">
+        <tspan style="font-size:4.9px;stroke-width:0.264583;fill:#4a55ff;fill-opacity:1;text-decoration:underline;" x="33.7" y="24.73">{{webinterface}}</tspan>
+    </text>
+    <g>
+        {{image}}
+    </g>
+  </g>
+</svg>
