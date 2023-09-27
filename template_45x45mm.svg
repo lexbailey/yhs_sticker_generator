@@ -8,6 +8,7 @@
    xmlns:svg="http://www.w3.org/2000/svg">
   <g>
     <rect width="45" height="45" x="0" y="0" style="{{bgstyle}}" />
+    <path d="M 0 0 L 45 0 L 45 45 L 0 45 z" style="fill:none;stroke:red;stroke-width:0.2mm;" />
     <text xml:space="preserve">
         <tspan style="font-weight:bold;font-size:5.6px;font-family:sans-serif;" x="2.34" y="6.68">{{name}}</tspan>
     </text>
