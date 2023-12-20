@@ -4,6 +4,7 @@ mod utils;
 use wasm_bindgen::prelude::*;
 use thiserror::Error;
 use std::collections::HashMap;
+use base64::Engine;
 
 #[wasm_bindgen]
 extern "C" {
@@ -183,7 +184,7 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             });
             let req_training = training.is_some();
             info.insert("training".to_string(), if req_training {"DO NOT USE without training!".to_string()} else {"no training required".to_string()});
-            info.insert("bgstyle".to_string(), if req_training {"fill:#ff6b72;fill-opacity:1;".to_string()} else {"fill:#bcffb5;fill-opacity:1;".to_string()});
+            info.insert("bgstyle".to_string(), if req_training {"fill:#ff6b72;fill-opacity:1;".to_string()} else {"fill:#ffffff;fill-opacity:1;".to_string()});
             let mut is_ltl = true;
             let lcowner = owner.clone().unwrap_or("".to_string()).to_lowercase();
             for s in ["york hackspace", "hackspace", "york hack space", "hack space", "yhs", ""]{
@@ -205,7 +206,14 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
             }
             if img_name.is_some() && !has_web_interface{
                 let image = img_name.unwrap();
-                info.insert("NOESCimage".to_string(), format!("<image href=\"{}{}\" x=\"35\" y=\"20\" width=\"65\" height=\"20\" />", image_thumb_url, urlencoding::encode(&image)));
+                let url = format!("{}{}", image_thumb_url, urlencoding::encode(&image));
+                let client = reqwest_wasm::Client::builder().build()?;
+                let req = client.get(url).header(reqwest_wasm::header::ACCEPT, "image/*");
+                let resp = req.send().await?;
+                let mime = resp.headers().get("Content-Type").map_or("image/jpeg", |a|reqwest_wasm::header::HeaderValue::to_str(a).unwrap()).to_string();
+                let img_data = resp.bytes().await?;
+                let data = base64::engine::general_purpose::GeneralPurpose::new(&base64::alphabet::STANDARD, base64::engine::general_purpose::GeneralPurposeConfig::default()).encode(img_data);
+                info.insert("NOESCimage".to_string(), format!("<image href=\"data:{};base64,{}\" x=\"35\" y=\"20\" width=\"65\" height=\"20\" />", mime, data));
             }
             info.remove("image");
             let template = match template.as_ref() {
@@ -226,7 +234,6 @@ async fn gen_one_sticker(name: &str) -> Result<String, JsValue>{
 }
 
 fn generate_download_link(svgs: &mut dyn std::iter::Iterator<Item=(&str, &str)>) -> String {
-    use base64::Engine;
     use std::io::Write;
     let buf = Vec::<u8>::new();
     let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
